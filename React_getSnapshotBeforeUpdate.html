@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://unpkg.com/react@17.0.2/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+    <style>
+      .list {
+        width: 200px;
+        height: 150px;
+        background-color: skyblue;
+        overflow: auto;
+      }
+      .news {
+        height: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      class NewsList extends React.Component {
+        state = {
+          newsArr: [],
+        };
+        newsListRef = React.createRef();
+        componentDidMount() {
+          setInterval(() => {
+            const { newsArr } = this.state;
+            const news = `新闻${newsArr.length + 1}`;
+            this.setState({ newsArr: [news, ...newsArr] });
+          }, 1000);
+        }
+        getSnapshotBeforeUpdate(_prevProps, preState) {
+          const list = this.newsListRef.current;
+          if (preState.newsArr.length < this.state.newsArr.length) {
+            return list.scrollHeight - list.scrollTop;
+          }
+          return null;
+        }
+
+        componentDidUpdate(_prevProps, prevState, snapshotValue) {
+          const list = this.newsListRef.current;
+          if (snapshotValue !== null) {
+            list.scrollTop = list.scrollHeight - snapshotValue;
+          }
+        }
+        render() {
+          const { newsArr } = this.state;
+          return (
+            <div className="list" ref={this.newsListRef}>
+              {newsArr.map((item) => {
+                return (
+                  <div className="news" key={item}>
+                    {item}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        }
+      }
+      ReactDOM.render(<NewsList />, document.querySelector("#root"));
+    </script>
+  </body>
+</html>
